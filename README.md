@@ -1,4 +1,4 @@
-# DockerLAMPStack
+# Docker LAMPStack With Kubernetes
 
 Containerize a LAMP Stack using Docker
 
