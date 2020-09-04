@@ -4,10 +4,11 @@ services:
   apache:
     build: 
       context: './apache/'
+    image: httpd:2.4.35-alpine
     restart: always
     ports:
-      - "80:80"
-      - "443:443"
+      - "8090:80"
+      - "444:443"
     networks: 
       - frontend
       - backend
@@ -20,10 +21,10 @@ services:
     links:
       - mysql
     container_name: APACHE
-
   php:
     build: 
       context: './php/'
+    image: php:7.3-rc-fpm-alpine
     restart: always
     networks: 
       - backend
@@ -36,14 +37,16 @@ services:
   mysql:
     build: 
       context: './mysql/'
-    command: --default-authentication-plugin=mysql_native_password 
+    image: mysql:8.0
     restart: always
+    command: --default-authentication-plugin=mysql_native_password 
     networks:
       - backend
     ports:
-      - "3306:3306"
+      - "3304:3306"
     volumes:
       - data:/var/lib/mysql
+      - config:/etc/mysql/conf.d/
 # The default MySQL installation only creates the "root" administrative account
 # create new users using docker-compose exec
     environment:
@@ -60,7 +63,7 @@ services:
     image: phpmyadmin/phpmyadmin
     restart: always
     ports:
-      - "8081:80"
+      - "8084:80"
     environment:
       PMA_HOST: mysql
       MYSQL_USERNAME: "${DB_USERNAME}"
@@ -75,3 +78,4 @@ networks:
   frontend:
 volumes:
     data:
+    config:
