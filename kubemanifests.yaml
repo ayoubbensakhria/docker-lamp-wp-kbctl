@@ -11,6 +11,7 @@ items:
       io.kompose.service: apache
     name: apache
   spec:
+    type: NodePort 
     ports:
     - name: "80"
       port: 80
@@ -22,6 +23,7 @@ items:
       io.kompose.service: apache
   status:
     loadBalancer: {}
+
 - apiVersion: v1
   kind: Service
   metadata:
@@ -84,8 +86,8 @@ items:
           kompose.version: 1.21.0 (992df58d8)
         creationTimestamp: null
         labels:
-          io.kompose.network/dockerlampwpkbctl_backend: "true"
-          io.kompose.network/dockerlampwpkbctl_frontend: "true"
+          io.kompose.network/backend: "true"
+          io.kompose.network/frontend: "true"
           io.kompose.service: apache
       spec:
         containers:
@@ -101,6 +103,8 @@ items:
             name: apache-claim0
           - mountPath: /usr/local/apache2/cert/
             name: apache-claim1
+          - name: local-dir
+            mountPath: /public_html/
         restartPolicy: Always
         serviceAccountName: ""
         volumes:
@@ -110,6 +114,9 @@ items:
         - name: apache-claim1
           persistentVolumeClaim:
             claimName: apache-claim1
+        - name: local-dir
+          hostPath:
+            path: /public_html/
   status: {}
 - apiVersion: v1
   kind: PersistentVolumeClaim
@@ -143,30 +150,30 @@ items:
   kind: NetworkPolicy
   metadata:
     creationTimestamp: null
-    name: dockerlampwpkbctl_frontend
+    name: frontend
   spec:
     ingress:
     - from:
       - podSelector:
           matchLabels:
-            io.kompose.network/dockerlampwpkbctl_frontend: "true"
+            io.kompose.network/frontend: "true"
     podSelector:
       matchLabels:
-        io.kompose.network/dockerlampwpkbctl_frontend: "true"
+        io.kompose.network/frontend: "true"
 - apiVersion: extensions/v1beta1
   kind: NetworkPolicy
   metadata:
     creationTimestamp: null
-    name: dockerlampwpkbctl_backend
+    name: backend
   spec:
     ingress:
     - from:
       - podSelector:
           matchLabels:
-            io.kompose.network/dockerlampwpkbctl_backend: "true"
+            io.kompose.network/backend: "true"
     podSelector:
       matchLabels:
-        io.kompose.network/dockerlampwpkbctl_backend: "true"
+        io.kompose.network/backend: "true"
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
@@ -191,7 +198,7 @@ items:
           kompose.version: 1.21.0 (992df58d8)
         creationTimestamp: null
         labels:
-          io.kompose.network/dockerlampwpkbctl_backend: "true"
+          io.kompose.network/backend: "true"
           io.kompose.service: mysql
       spec:
         containers:
@@ -199,13 +206,9 @@ items:
           - --default-authentication-plugin=mysql_native_password
           env:
           - name: MYSQL_DATABASE
-            value: db
           - name: MYSQL_PASSWORD
-            value: root
           - name: MYSQL_ROOT_PASSWORD
-            value: root
           - name: MYSQL_USER
-            value: root
           image: mysql:8.0
           imagePullPolicy: ""
           name: mysql
@@ -234,7 +237,6 @@ items:
     labels:
       io.kompose.service: data
     name: data
-
   spec:
     accessModes:
     - ReadWriteOnce
@@ -260,16 +262,16 @@ items:
   kind: NetworkPolicy
   metadata:
     creationTimestamp: null
-    name: dockerlampwpkbctl_backend
+    name: backend
   spec:
     ingress:
     - from:
       - podSelector:
           matchLabels:
-            io.kompose.network/dockerlampwpkbctl_backend: "true"
+            io.kompose.network/backend: "true"
     podSelector:
       matchLabels:
-        io.kompose.network/dockerlampwpkbctl_backend: "true"
+        io.kompose.network/backend: "true"
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
@@ -294,7 +296,7 @@ items:
           kompose.version: 1.21.0 (992df58d8)
         creationTimestamp: null
         labels:
-          io.kompose.network/dockerlampwpkbctl_backend: "true"
+          io.kompose.network/backend: "true"
           io.kompose.service: php
       spec:
         containers:
@@ -349,16 +351,16 @@ items:
   kind: NetworkPolicy
   metadata:
     creationTimestamp: null
-    name: dockerlampwpkbctl_backend
+    name: backend
   spec:
     ingress:
     - from:
       - podSelector:
           matchLabels:
-            io.kompose.network/dockerlampwpkbctl_backend: "true"
+            io.kompose.network/backend: "true"
     podSelector:
       matchLabels:
-        io.kompose.network/dockerlampwpkbctl_backend: "true"
+        io.kompose.network/backend: "true"
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
@@ -383,15 +385,13 @@ items:
           kompose.version: 1.21.0 (992df58d8)
         creationTimestamp: null
         labels:
-          io.kompose.network/dockerlampwpkbctl_backend: "true"
+          io.kompose.network/backend: "true"
           io.kompose.service: phpmyadmin
       spec:
         containers:
         - env:
           - name: MYSQL_ROOT_PASSWORD
-            value: root
           - name: MYSQL_USERNAME
-            value: root
           - name: PMA_HOST
             value: mysql
           image: phpmyadmin/phpmyadmin
@@ -428,16 +428,16 @@ items:
   kind: NetworkPolicy
   metadata:
     creationTimestamp: null
-    name: dockerlampwpkbctl_backend
+    name: backend
   spec:
     ingress:
     - from:
       - podSelector:
           matchLabels:
-            io.kompose.network/dockerlampwpkbctl_backend: "true"
+            io.kompose.network/backend: "true"
     podSelector:
       matchLabels:
-        io.kompose.network/dockerlampwpkbctl_backend: "true"
+        io.kompose.network/backend: "true"
 kind: List
 metadata: {}
 
