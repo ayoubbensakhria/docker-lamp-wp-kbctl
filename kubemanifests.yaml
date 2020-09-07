@@ -99,24 +99,19 @@ items:
           - containerPort: 443
           resources: {}
           volumeMounts:
-          - mountPath: /usr/local/apache2/htdocs
-            name: apache-claim0
           - mountPath: /usr/local/apache2/cert/
             name: apache-claim1
-          - name: local-dir
-            mountPath: /public_html/
+          - mountPath: /usr/local/apache2/htdocs
+            name: html-claim
         restartPolicy: Always
         serviceAccountName: ""
         volumes:
-        - name: apache-claim0
-          persistentVolumeClaim:
-            claimName: apache-claim0
         - name: apache-claim1
           persistentVolumeClaim:
             claimName: apache-claim1
-        - name: local-dir
-          hostPath:
-            path: /public_html/
+        - name: html-claim
+          persistentVolumeClaim:
+            claimName: html-claim
   status: {}
 - apiVersion: v1
   kind: PersistentVolumeClaim
@@ -146,6 +141,32 @@ items:
       requests:
         storage: 100Mi
   status: {}
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: html-volume
+    labels:
+      type: local
+  spec:
+    storageClassName: manual
+    capacity:
+      storage: 10Gi
+    accessModes:
+      - ReadWriteOnce
+    hostPath:
+      path: "/public_html"
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: html-claim
+  spec:
+    storageClassName: manual
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 3Gi
+        
 - apiVersion: extensions/v1beta1
   kind: NetworkPolicy
   metadata:
@@ -206,9 +227,13 @@ items:
           - --default-authentication-plugin=mysql_native_password
           env:
           - name: MYSQL_DATABASE
+            value: 'mysql'
           - name: MYSQL_PASSWORD
+            value: 'root'
           - name: MYSQL_ROOT_PASSWORD
+            value: 'root'
           - name: MYSQL_USER
+            value: 'root'
           image: mysql:8.0
           imagePullPolicy: ""
           name: mysql
@@ -306,15 +331,15 @@ items:
           resources: {}
           volumeMounts:
           - mountPath: /usr/local/apache2/htdocs
-            name: php-claim0
+            name: html-claim
           - mountPath: /usr/local/tmp
             name: php-claim1
         restartPolicy: Always
         serviceAccountName: ""
         volumes:
-        - name: php-claim0
+        - name: html-claim
           persistentVolumeClaim:
-            claimName: php-claim0
+            claimName: html-claim
         - name: php-claim1
           persistentVolumeClaim:
             claimName: php-claim1

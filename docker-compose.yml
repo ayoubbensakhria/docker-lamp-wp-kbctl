@@ -4,11 +4,11 @@ services:
   apache:
     build: 
       context: './apache/'
-    image: httpd:2.4.35-alpine
+    image: ayoubbensakhria/apache
     restart: always
     ports:
-      - "8090:80"
-      - "444:443"
+      - "80:80"
+      - "443:443"
     networks: 
       - frontend
       - backend
@@ -24,7 +24,7 @@ services:
   php:
     build: 
       context: './php/'
-    image: php:7.3-rc-fpm-alpine
+    image: ayoubbensakhria/php
     restart: always
     networks: 
       - backend
@@ -37,13 +37,13 @@ services:
   mysql:
     build: 
       context: './mysql/'
-    image: mysql:8.0
+    image: ayoubbensakhria/mysql
     restart: always
     command: --default-authentication-plugin=mysql_native_password 
     networks:
       - backend
     ports:
-      - "3304:3306"
+      - "3306:3306"
     volumes:
       - data:/var/lib/mysql
       - config:/etc/mysql/conf.d/
@@ -60,10 +60,12 @@ services:
       - mysql
     links:
       - mysql
-    image: phpmyadmin/phpmyadmin
+    build: 
+      context: ./phpmyadmin
+    image: ayoubbensakhria/phpmyadmin
     restart: always
     ports:
-      - "8084:80"
+      - "8081:80"
     environment:
       PMA_HOST: mysql
       MYSQL_USERNAME: "${DB_USERNAME}"
