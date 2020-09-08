@@ -3,7 +3,7 @@ version: '3.7'
 services:
   apache:
     build: 
-      context: './apache/'
+      context: '.'
     image: ayoubbensakhria/apache
     restart: always
     ports:
@@ -61,7 +61,7 @@ services:
     links:
       - mysql
     build: 
-      context: ./phpmyadmin
+      context: ./phpmyadmin/
     image: ayoubbensakhria/phpmyadmin
     restart: always
     ports:

@@ -1,20 +1,18 @@
+#docker-compose.prod.yml
 version: '2'
 
 services:
   apache:
     build: 
-      context: './apache/'
+      context: '.'
     image: ayoubbensakhria/apache
     restart: always
     ports:
       - "80:80"
-      - "443:443"
+      - "444:443"
     networks: 
       - frontend
       - backend
-    volumes:
-      - ${PROJECT_ROOT}:/usr/local/apache2/htdocs
-      - ./cert/:/usr/local/apache2/cert/
     depends_on:
       - php
       - mysql
@@ -28,11 +26,14 @@ services:
     restart: always
     networks: 
       - backend
+      - frontend
     volumes:
       - ${PROJECT_ROOT}:/usr/local/apache2/htdocs
       - ./tmp:/usr/local/tmp
     links:
      - mysql
+    depends_on:
+      - mysql
     container_name: PHP
   mysql:
     build: 
@@ -61,7 +62,7 @@ services:
     links:
       - mysql
     build: 
-      context: ./phpmyadmin
+      context: ./phpmyadmin/
     image: ayoubbensakhria/phpmyadmin
     restart: always
     ports:

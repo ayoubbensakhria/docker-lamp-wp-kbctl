@@ -11,7 +11,7 @@ items:
       io.kompose.service: apache
     name: apache
   spec:
-    type: NodePort 
+    type: NodePort
     ports:
     - name: "80"
       port: 80
@@ -23,7 +23,6 @@ items:
       io.kompose.service: apache
   status:
     loadBalancer: {}
-
 - apiVersion: v1
   kind: Service
   metadata:
@@ -77,8 +76,7 @@ items:
     selector:
       matchLabels:
         io.kompose.service: apache
-    strategy:
-      type: Recreate
+    strategy: {}
     template:
       metadata:
         annotations:
@@ -86,115 +84,50 @@ items:
           kompose.version: 1.21.0 (992df58d8)
         creationTimestamp: null
         labels:
-          io.kompose.network/backend: "true"
-          io.kompose.network/frontend: "true"
+          io.kompose.network/dockerlampwpkbctl_backend: "true"
+          io.kompose.network/dockerlampwpkbctl_frontend: "true"
           io.kompose.service: apache
       spec:
         containers:
-        - image: httpd:2.4.35-alpine
-          imagePullPolicy: ""
+        - image: ayoubbensakhria/apache
+          imagePullPolicy: Always
           name: apache
           ports:
           - containerPort: 80
           - containerPort: 443
           resources: {}
-          volumeMounts:
-          - mountPath: /usr/local/apache2/cert/
-            name: apache-claim1
-          - mountPath: /usr/local/apache2/htdocs
-            name: html-claim
         restartPolicy: Always
         serviceAccountName: ""
-        volumes:
-        - name: apache-claim1
-          persistentVolumeClaim:
-            claimName: apache-claim1
-        - name: html-claim
-          persistentVolumeClaim:
-            claimName: html-claim
+        volumes: null
   status: {}
-- apiVersion: v1
-  kind: PersistentVolumeClaim
-  metadata:
-    creationTimestamp: null
-    labels:
-      io.kompose.service: apache-claim0
-    name: apache-claim0
-  spec:
-    accessModes:
-    - ReadWriteOnce
-    resources:
-      requests:
-        storage: 100Mi
-  status: {}
-- apiVersion: v1
-  kind: PersistentVolumeClaim
-  metadata:
-    creationTimestamp: null
-    labels:
-      io.kompose.service: apache-claim1
-    name: apache-claim1
-  spec:
-    accessModes:
-    - ReadWriteOnce
-    resources:
-      requests:
-        storage: 100Mi
-  status: {}
-- apiVersion: v1
-  kind: PersistentVolume
-  metadata:
-    name: html-volume
-    labels:
-      type: local
-  spec:
-    storageClassName: manual
-    capacity:
-      storage: 10Gi
-    accessModes:
-      - ReadWriteOnce
-    hostPath:
-      path: "/public_html"
-- apiVersion: v1
-  kind: PersistentVolumeClaim
-  metadata:
-    name: html-claim
-  spec:
-    storageClassName: manual
-    accessModes:
-      - ReadWriteOnce
-    resources:
-      requests:
-        storage: 3Gi
-        
 - apiVersion: extensions/v1beta1
   kind: NetworkPolicy
   metadata:
     creationTimestamp: null
-    name: frontend
+    name: dockerlampwpkbctl_frontend
   spec:
     ingress:
     - from:
       - podSelector:
           matchLabels:
-            io.kompose.network/frontend: "true"
+            io.kompose.network/dockerlampwpkbctl_frontend: "true"
     podSelector:
       matchLabels:
-        io.kompose.network/frontend: "true"
+        io.kompose.network/dockerlampwpkbctl_frontend: "true"
 - apiVersion: extensions/v1beta1
   kind: NetworkPolicy
   metadata:
     creationTimestamp: null
-    name: backend
+    name: dockerlampwpkbctl_backend
   spec:
     ingress:
     - from:
       - podSelector:
           matchLabels:
-            io.kompose.network/backend: "true"
+            io.kompose.network/dockerlampwpkbctl_backend: "true"
     podSelector:
       matchLabels:
-        io.kompose.network/backend: "true"
+        io.kompose.network/dockerlampwpkbctl_backend: "true"
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
@@ -219,7 +152,7 @@ items:
           kompose.version: 1.21.0 (992df58d8)
         creationTimestamp: null
         labels:
-          io.kompose.network/backend: "true"
+          io.kompose.network/dockerlampwpkbctl_backend: "true"
           io.kompose.service: mysql
       spec:
         containers:
@@ -227,14 +160,14 @@ items:
           - --default-authentication-plugin=mysql_native_password
           env:
           - name: MYSQL_DATABASE
-            value: 'mysql'
+            value: db
           - name: MYSQL_PASSWORD
-            value: 'root'
+            value: root
           - name: MYSQL_ROOT_PASSWORD
-            value: 'root'
+            value: root
           - name: MYSQL_USER
-            value: 'root'
-          image: mysql:8.0
+            value: root
+          image: ayoubbensakhria/mysql
           imagePullPolicy: ""
           name: mysql
           ports:
@@ -287,16 +220,16 @@ items:
   kind: NetworkPolicy
   metadata:
     creationTimestamp: null
-    name: backend
+    name: dockerlampwpkbctl_backend
   spec:
     ingress:
     - from:
       - podSelector:
           matchLabels:
-            io.kompose.network/backend: "true"
+            io.kompose.network/dockerlampwpkbctl_backend: "true"
     podSelector:
       matchLabels:
-        io.kompose.network/backend: "true"
+        io.kompose.network/dockerlampwpkbctl_backend: "true"
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
@@ -321,25 +254,26 @@ items:
           kompose.version: 1.21.0 (992df58d8)
         creationTimestamp: null
         labels:
-          io.kompose.network/backend: "true"
+          io.kompose.network/dockerlampwpkbctl_backend: "true"
+          io.kompose.network/dockerlampwpkbctl_frontend: "true"
           io.kompose.service: php
       spec:
         containers:
-        - image: php:7.3-rc-fpm-alpine
+        - image: ayoubbensakhria/php
           imagePullPolicy: ""
           name: php
           resources: {}
           volumeMounts:
           - mountPath: /usr/local/apache2/htdocs
-            name: html-claim
+            name: php-claim0
           - mountPath: /usr/local/tmp
             name: php-claim1
         restartPolicy: Always
         serviceAccountName: ""
         volumes:
-        - name: html-claim
+        - name: php-claim0
           persistentVolumeClaim:
-            claimName: html-claim
+            claimName: php-claim0
         - name: php-claim1
           persistentVolumeClaim:
             claimName: php-claim1
@@ -376,16 +310,30 @@ items:
   kind: NetworkPolicy
   metadata:
     creationTimestamp: null
-    name: backend
+    name: dockerlampwpkbctl_backend
   spec:
     ingress:
     - from:
       - podSelector:
           matchLabels:
-            io.kompose.network/backend: "true"
+            io.kompose.network/dockerlampwpkbctl_backend: "true"
     podSelector:
       matchLabels:
-        io.kompose.network/backend: "true"
+        io.kompose.network/dockerlampwpkbctl_backend: "true"
+- apiVersion: extensions/v1beta1
+  kind: NetworkPolicy
+  metadata:
+    creationTimestamp: null
+    name: dockerlampwpkbctl_frontend
+  spec:
+    ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            io.kompose.network/dockerlampwpkbctl_frontend: "true"
+    podSelector:
+      matchLabels:
+        io.kompose.network/dockerlampwpkbctl_frontend: "true"
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
@@ -410,16 +358,18 @@ items:
           kompose.version: 1.21.0 (992df58d8)
         creationTimestamp: null
         labels:
-          io.kompose.network/backend: "true"
+          io.kompose.network/dockerlampwpkbctl_backend: "true"
           io.kompose.service: phpmyadmin
       spec:
         containers:
         - env:
           - name: MYSQL_ROOT_PASSWORD
+            value: root
           - name: MYSQL_USERNAME
+            value: root
           - name: PMA_HOST
             value: mysql
-          image: phpmyadmin/phpmyadmin
+          image: ayoubbensakhria/phpmyadmin
           imagePullPolicy: ""
           name: phpmyadmin
           ports:
@@ -453,16 +403,16 @@ items:
   kind: NetworkPolicy
   metadata:
     creationTimestamp: null
-    name: backend
+    name: dockerlampwpkbctl_backend
   spec:
     ingress:
     - from:
       - podSelector:
           matchLabels:
-            io.kompose.network/backend: "true"
+            io.kompose.network/dockerlampwpkbctl_backend: "true"
     podSelector:
       matchLabels:
-        io.kompose.network/backend: "true"
+        io.kompose.network/dockerlampwpkbctl_backend: "true"
 kind: List
 metadata: {}
 
