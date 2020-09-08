@@ -19,22 +19,6 @@ services:
     links:
       - mysql
     container_name: APACHE
-  php:
-    build: 
-      context: './php/'
-    image: ayoubbensakhria/php
-    restart: always
-    networks: 
-      - backend
-      - frontend
-    volumes:
-      - ${PROJECT_ROOT}:/usr/local/apache2/htdocs
-      - ./tmp:/usr/local/tmp
-    links:
-     - mysql
-    depends_on:
-      - mysql
-    container_name: PHP
   mysql:
     build: 
       context: './mysql/'
