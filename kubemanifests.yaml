@@ -16,9 +16,11 @@ items:
     - name: "80"
       port: 80
       targetPort: 80
+      nodePort: 30007
     - name: "443"
       port: 443
       targetPort: 443
+
     selector:
       io.kompose.service: apache
   status:
@@ -76,7 +78,8 @@ items:
     selector:
       matchLabels:
         io.kompose.service: apache
-    strategy: {}
+    strategy:
+      type: Recreate
     template:
       metadata:
         annotations:
@@ -90,15 +93,54 @@ items:
       spec:
         containers:
         - image: ayoubbensakhria/apache
-          imagePullPolicy: Always
+          imagePullPolicy: ""
           name: apache
           ports:
           - containerPort: 80
           - containerPort: 443
           resources: {}
+          volumeMounts:
+          - mountPath: /usr/local/apache2/htdocs
+            name: apache-claim0
+          - mountPath: /usr/local/apache2/cert/
+            name: apache-claim1
         restartPolicy: Always
         serviceAccountName: ""
-        volumes: null
+        volumes:
+        - name: apache-claim0
+          persistentVolumeClaim:
+            claimName: apache-claim0
+        - name: apache-claim1
+          persistentVolumeClaim:
+            claimName: apache-claim1
+  status: {}
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    creationTimestamp: null
+    labels:
+      io.kompose.service: apache-claim0
+    name: apache-claim0
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 100Mi
+  status: {}
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    creationTimestamp: null
+    labels:
+      io.kompose.service: apache-claim1
+    name: apache-claim1
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 100Mi
   status: {}
 - apiVersion: extensions/v1beta1
   kind: NetworkPolicy
@@ -255,7 +297,6 @@ items:
         creationTimestamp: null
         labels:
           io.kompose.network/dockerlampwpkbctl_backend: "true"
-          io.kompose.network/dockerlampwpkbctl_frontend: "true"
           io.kompose.service: php
       spec:
         containers:
@@ -320,20 +361,6 @@ items:
     podSelector:
       matchLabels:
         io.kompose.network/dockerlampwpkbctl_backend: "true"
-- apiVersion: extensions/v1beta1
-  kind: NetworkPolicy
-  metadata:
-    creationTimestamp: null
-    name: dockerlampwpkbctl_frontend
-  spec:
-    ingress:
-    - from:
-      - podSelector:
-          matchLabels:
-            io.kompose.network/dockerlampwpkbctl_frontend: "true"
-    podSelector:
-      matchLabels:
-        io.kompose.network/dockerlampwpkbctl_frontend: "true"
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
