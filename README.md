@@ -28,10 +28,11 @@ kompose convert -f docker-compose.prod.yml -o kubemanifests.yaml
 Enable Kubernetes Engine API
 Create a cluster
   ```bash
-gcloud container clusters create promeddeluxe \
+gcloud container clusters create lampkubectl \
     --zone us-central1-a
   ```
-  
+Shell into the created cluster
+
 
 --> Navigate to localhost or 127.0.0.1
 

@@ -13,27 +13,14 @@ services:
       - frontend
       - backend
     volumes:
-      - ${PROJECT_ROOT}:/usr/local/apache2/htdocs
+      #- ${PROJECT_ROOT}:/var/www/
       - ./cert/:/usr/local/apache2/cert/
     depends_on:
-      - php
       - mysql
     links:
       - mysql
     container_name: APACHE
-  php:
-    build: 
-      context: './php/'
-    image: ayoubbensakhria/php
-    restart: always
-    networks: 
-      - backend
-    volumes:
-      - ${PROJECT_ROOT}:/usr/local/apache2/htdocs
-      - ./tmp:/usr/local/tmp
-    links:
-     - mysql
-    container_name: PHP
+
   mysql:
     build: 
       context: './mysql/'

@@ -13,7 +13,7 @@ services:
       - frontend
       - backend
     volumes:
-      - ${PROJECT_ROOT}:/var/www
+      #- ${PROJECT_ROOT}:/var/www/
       - ./cert/:/usr/local/apache2/cert/
     depends_on:
       - mysql

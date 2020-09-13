@@ -1,7 +1,8 @@
 FROM ubuntu:16.04
 MAINTAINER Ayoub Bensakhria <iayoub@yandex.com>
 
-VOLUME ["/var/www"]
+#VOLUME ["/var/www/"]
+
 
 RUN apt-get update && \
     apt-get dist-upgrade -y && \
@@ -31,15 +32,17 @@ RUN apt-get update && \
 #RUN apt-get install -y php7.0-curl
 
 COPY config/apache.conf /etc/apache2/sites-available/000-default.conf
+
 COPY config/run /usr/local/bin/run
+
 RUN chmod +x /usr/local/bin/run
+
 RUN a2enmod rewrite
 
+RUN chgrp -R www-data /var/www/
+
+COPY ./public_html/ /var/www/public_html
+
 EXPOSE 80
+
 CMD ["/usr/local/bin/run"]
-
-
-COPY public_html/ /var/www/
-
-EXPOSE 80
-EXPOSE 443
